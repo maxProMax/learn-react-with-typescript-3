@@ -1,69 +1,68 @@
 import React, { Fragment } from 'react';
 import { RouteComponentProps, Prompt } from 'react-router';
-import { IProduct, products } from './ProductsData';
+import { IProduct, products, getProduct } from './ProductsData';
+import { Product } from './Product';
 
 type Props = RouteComponentProps<{ id: string }>;
 
 interface IState {
-	product?: IProduct;
-	added: boolean;
+    product?: IProduct;
+    added: boolean;
+    loading: boolean;
 }
 
 export class ProductPage extends React.Component<Props, IState> {
-	public constructor(props: Props) {
-		super(props);
+    public constructor(props: Props) {
+        super(props);
 
-		this.state = {
-			added: false
-		};
-	}
+        this.state = {
+            added: false,
+            loading: true,
+        };
+    }
 
-	handleAddClick = () => {
-		this.setState({
-			added: true
-		});
-	};
+    handleAddClick = () => {
+        this.setState({
+            added: true,
+        });
+    };
 
-	private navAwayMsg = () =>
-		'Are you sure you leave without buying this product?';
+    private navAwayMsg = () =>
+        'Are you sure you leave without buying this product?';
 
-	public componentDidMount() {
-		const { id } = this.props.match.params;
+    public async componentDidMount() {
+        const { id } = this.props.match.params;
 
-		if (id) {
-			const idNum = window.parseInt(id, 10);
-			this.setState({
-				product: products.find((product) => product.id === idNum)
-			});
-		}
-	}
+        if (id) {
+            const idNum = window.parseInt(id, 10);
+            const product = await getProduct(idNum);
 
-	public render() {
-		const product = this.state.product;
+            if (product) {
+                this.setState({
+                    product,
+                    loading: false,
+                });
+            }
+        }
+    }
 
-		return (
-			<div className="page-container">
-				<Prompt message={this.navAwayMsg} when={!this.state.added} />
-				{product ? (
-					<Fragment>
-						<h1>{product.name}</h1>
-						<p>{product.description}</p>
-						<p className="product-price">
-							{new Intl.NumberFormat('en-US', {
-								currency: 'USD',
-								style: 'currency'
-							}).format(product.price)}
-						</p>
-						{!this.state.added && (
-							<button onClick={this.handleAddClick}>
-								Add to basket
-							</button>
-						)}
-					</Fragment>
-				) : (
-					<p>Product not found!</p>
-				)}
-			</div>
-		);
-	}
+    public render() {
+        const product = this.state.product;
+
+        return (
+            <div className="page-container">
+                <Prompt message={this.navAwayMsg} when={!this.state.added} />
+                {product || this.state.loading ? (
+                    <Product
+                        product={product}
+                        loading={this.state.loading}
+                        inBasket={this.state.added}
+                        onAddToBasket={this.handleAddClick}
+                    />
+                ) : (
+                    <p>Product not found!</p>
+                )}
+            </div>
+        );
+    }
 }
