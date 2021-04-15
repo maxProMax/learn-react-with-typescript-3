@@ -1,15 +1,4 @@
-export interface IProduct {
-    id: number;
-    name: string;
-    description: string;
-    price: number;
-    reviews: IReview[];
-}
-
-export interface IReview {
-    comment: string;
-    reviewer: string;
-}
+import { IProduct } from './ProductsTypes';
 
 export const products: IProduct[] = [
     {
@@ -62,4 +51,10 @@ const wait = (sec: number): Promise<void> =>
 export const getProduct = async (id: number): Promise<IProduct | null> => {
     await wait(1000);
     return products.find((product) => product.id === id) ?? null;
+};
+
+export const getProducts = async (): Promise<IProduct[]> => {
+    await wait(1000);
+
+    return products;
 };

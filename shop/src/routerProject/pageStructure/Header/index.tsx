@@ -1,12 +1,17 @@
 import React, { useEffect, useState } from 'react';
+import { connect } from 'react-redux';
 import { NavLink, RouteComponentProps, withRouter } from 'react-router-dom';
+import { BasketSummery } from '../BasketSummery';
+import { IApplicationState } from '../../Store';
 import logo from '../../../logo.svg';
 
 import './index.css';
 
-export const HeaderBare: React.FunctionComponent<RouteComponentProps> = (
-    props
-) => {
+interface IProps extends RouteComponentProps {
+    basketCount: number;
+}
+
+export const HeaderBare: React.FunctionComponent<IProps> = (props) => {
     const [search, setSearch] = useState('');
 
     useEffect(() => {
@@ -35,6 +40,7 @@ export const HeaderBare: React.FunctionComponent<RouteComponentProps> = (
                     onChange={handleChange}
                     onKeyDown={handleKeyDown}
                 />
+                <BasketSummery count={props.basketCount} />
             </div>
             <img src={logo} className="header-logo" alt="logo" />
             <h1 className="header-title">React Shop</h1>
@@ -65,4 +71,8 @@ export const HeaderBare: React.FunctionComponent<RouteComponentProps> = (
     );
 };
 
-export const Header = withRouter(HeaderBare);
+const mapStateToProps = (state: IApplicationState) => ({
+    basketCount: state.basket.products.length,
+});
+
+export const Header = connect(mapStateToProps)(withRouter(HeaderBare));

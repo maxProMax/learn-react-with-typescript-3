@@ -1,5 +1,5 @@
-import { FC } from 'react';
-import { IProduct } from './ProductsData';
+import { FC, useReducer } from 'react';
+import { IProduct } from '../../products';
 import { Tabs, Tab } from '../../pageStructure/Tabs';
 import { withLoader } from '../../pageStructure/hoc/withLoader';
 
@@ -9,17 +9,58 @@ interface IProps {
     onAddToBasket: () => void;
 }
 
+interface ILikeState {
+    likes: number;
+    lastLike: Date | null;
+}
+
+const initialLikeState: ILikeState = {
+    likes: 0,
+    lastLike: null,
+};
+
+enum LikeActionsType {
+    LIKE = 'LIKE',
+}
+interface ILikeAction {
+    type: LikeActionsType.LIKE;
+    now: Date;
+}
+
+type LikeActions = ILikeAction;
+
+const reducer = (state: ILikeState, action: LikeActions): ILikeState => {
+    switch (action.type) {
+        case LikeActionsType.LIKE:
+            return {
+                likes: state.likes + 1,
+                lastLike: action.now,
+            };
+    }
+    return state;
+};
+
 export const ProductBare: FC<IProps> = ({
     product,
     inBasket,
     onAddToBasket,
 }) => {
+    const [{ likes, lastLike }, dispatch]: [
+        ILikeState,
+        (action: LikeActions) => void
+    ] = useReducer(reducer, initialLikeState);
+
     const handleAddClick = () => {
         onAddToBasket();
     };
+    const handleLikeClick = () => {
+        dispatch({ type: LikeActionsType.LIKE, now: new Date() });
+    };
+
     if (!product) {
         return null;
     }
+
     return (
         <>
             <h1>{product.name}</h1>
@@ -54,6 +95,14 @@ export const ProductBare: FC<IProps> = ({
             {!inBasket && (
                 <button onClick={handleAddClick}>Add to basket</button>
             )}
+            <div className="like-container">
+                {likes > 0 && (
+                    <div>{`I like this x ${likes}, last at ${lastLike}`}</div>
+                )}
+                <button onClick={handleLikeClick}>
+                    {likes > 0 ? 'Like again' : 'Like'}
+                </button>
+            </div>
         </>
     );
 };

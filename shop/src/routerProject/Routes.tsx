@@ -22,7 +22,7 @@ import './index.css';
 const AdminPage = React.lazy(() => import('./pages/admin'));
 
 const Routes: React.FunctionComponent<RouteComponentProps> = (props) => {
-    const [loggedIn, seTloggedIn] = useState(true);
+    const [loggedIn] = useState(true);
 
     return (
         <div>
