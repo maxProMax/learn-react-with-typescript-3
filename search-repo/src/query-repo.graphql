@@ -1,0 +1,21 @@
+query GetRepo($orgName: String!, $repoName: String!) {
+    repository(owner: $orgName, name: $repoName) {
+        id
+        name
+        description
+        viewerHasStarred
+        stargazers {
+            totalCount
+        }
+        issues(last: 5) {
+            edges {
+                node {
+                    id
+                    title
+                    url
+                    publishedAt
+                }
+            }
+        }
+    }
+}
